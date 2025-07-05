@@ -85,7 +85,7 @@ def scanPage(pgPath, config):
     # Also need the IN PATH to figure out which file to delete.
     meta['inpath'] = pgPath
 
-    meta["content"] = content
+    meta["content"] = mistune.html(content)
 
     return meta
 
