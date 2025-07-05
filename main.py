@@ -111,6 +111,28 @@ def scanPageDir(dir, config):
     return pages
 
 
+def writePage(page, pageList, config):
+    # Build the page data dictionary
+    templateData = {
+        'site': config,
+        'page': page,
+        'allPages': pageList
+    }
+
+    # Generate the final output
+    output = renderTemplate(page['template'], 'templates', templateData)
+
+    # Try to write the final output
+    try:
+        with open(page['outpath'], 'w') as f:
+            f.write(output)
+
+    except Exception as e:
+        print(f"ERROR: Unable to write output file: '{p['outpath']}'!")
+        print(f"ERROR: {e}")
+        sys.exit(1)
+
+
 
 def main(pub=False):
     # First, load the config file
@@ -154,25 +176,7 @@ def main(pub=False):
 
     # Write all of the pages.
     for p in pages:
-        # Build the page data dictionary
-        pDict = {
-            'site': config,
-            'page': p,
-            'allPages': pages
-        }
-
-        # Generate the final output
-        output = renderTemplate(p['template'], 'templates', pDict)
-
-        # Try to write the final output
-        try:
-            with open(p['outpath'], 'w') as f:
-                f.write(output)
-
-        except Exception as e:
-            print(f"ERROR: Unable to write output file: '{p['outpath']}'!")
-            print(f"ERROR: {e}")
-            sys.exit(1)
+        writePage(p, pages, config)
 
         # Try to remove the source MD file.
         try:
