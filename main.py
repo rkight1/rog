@@ -2,7 +2,8 @@ import sys
 
 # external packages
 import chevron
-
+import mistune
+import yaml
 
 # Test chevron
 def renderTemplate(tName, tPath, pDict):
@@ -32,14 +33,26 @@ def renderTemplate(tName, tPath, pDict):
     # ./partials/thing.ms will be read and rendered
     return chevron.render(**args)
 
-pDict = {
-    'site': {
-        'name': "My site!"
-    },
-    'page': {
-        'title': "Lots of stuff",
-        'content': "There's a lot of stuff here!"
-    }
-}
 
-print(renderTemplate('default', 'templates', pDict))
+def main():
+    # First, load the config file
+    try:
+        with open('config.yml', 'r') as f:
+            config = yaml.safe_load(f)
+    except Exception as e:
+        print("ERROR: Unable to load 'config.yml'!")
+        print("Please make sure the file exists and contains valid YAML")
+
+
+
+    pDict = {
+        'site': config,
+        'page': {
+            'title': "Lots of stuff",
+            'content': "There's a lot of stuff here!"
+        }
+    }
+
+    print(renderTemplate('default', 'templates', pDict))
+
+main()
