@@ -5,13 +5,14 @@ import chevron
 
 
 # Test chevron
-def renderTemplate(tPath, pPath, pDict):
+def renderTemplate(tName, tPath, pDict):
     # Die if template can't be slurped.
+    tFile = f"{tPath}/{tName}.html"
     try:
-        with open(tPath, 'r') as f:
+        with open(f"{tFile}", 'r') as f:
             template = f.read()
     except Exception as e:
-        print(f"Unable to read template file: '{tPath}'!")
+        print(f"Unable to read template file: '{tFile}'!")
         print(f"ERROR: {e}")
         sys.exit(1)
 
@@ -20,7 +21,7 @@ def renderTemplate(tPath, pPath, pDict):
         'template': template,
 
         # defaults to .
-        'partials_path': pPath,
+        'partials_path': tPath,
 
         # defaults to mustache
         'partials_ext': 'html',
@@ -41,4 +42,4 @@ pDict = {
     }
 }
 
-print(renderTemplate('templates/default.html', 'templates', pDict))
+print(renderTemplate('default', 'templates', pDict))
