@@ -46,7 +46,7 @@ def splitPage(content):
 # Slurp a page and build a dict of page data. Also
 # validates the page to ensure required keys exist.
 def scanPage(pgPath, config):
-    print(pgPath)
+    # print(pgPath)
     try:
         with open(pgPath, 'r') as f:
             content = f.read()
@@ -133,6 +133,47 @@ def writePage(page, pageList, config):
         sys.exit(1)
 
 
+def getPagesByProperty(pageList, prop):
+    """Takes a list of page dictionaries and a property (eg. tags, category) and generates a list of unique values. Then it generates of a list of matching pages for each value and returns a nested dictionary.
+
+    This can be used to generate pages for each tag, category, <insert property here>.
+    """
+
+    propValues = []
+
+    for pg in pageList:
+        val = pg[prop]
+
+        # The value is a list, iterate over it
+        if isinstance(val, list):
+            for item in val:
+                propValues.append(item)
+        # If it's a string, append it as is
+        elif isinstance(val, str):
+            propValues.append(val)
+        else:
+            print("WARNING: Property '{prop}' of page with title: {pg['title']} is neither a string nor a list. Skipping.")
+
+    # Remove duplicate values
+    propValues = list(set(propValues))
+
+    newPageDict = {}
+    for pv in propValues:
+        newPageDict[pv] = []
+        for pg in pageList:
+            if prop in pg:
+
+                # Once again, we have to distringuish between string and array
+                if isinstance(pg[prop], list):
+                    for item in pg[prop]:
+                        if item == pv:
+                            newPageDict[pv].append(pg)
+                elif isinstance(pg[prop], str):
+                    if pg[prop] == pv:
+                        newPageDict[pv].append(pg)
+
+    return newPageDict
+
 
 def main(pub=False):
     # First, load the config file
@@ -173,6 +214,12 @@ def main(pub=False):
         return page['date']
 
     pages = sorted(pages, key=getDate, reverse=True)
+    tagPages = getPagesByProperty(pages, 'tags')
+
+    for t in tagPages:
+        print(t)
+        print(tagPages[t])
+        print('---')
 
     # Write all of the pages.
     for p in pages:
