@@ -45,7 +45,8 @@ def splitPage(content):
 
 # Slurp a page and build a dict of page data. Also
 # validates the page to ensure required keys exist.
-def scanPage(pgPath):
+def scanPage(pgPath, config):
+    print(pgPath)
     try:
         with open(pgPath, 'r') as f:
             content = f.read()
@@ -74,34 +75,40 @@ def scanPage(pgPath):
     if "template" not in meta:
         meta["template"] = "default"
 
+    # Every page needs a url and an output path
+    outpath = pgPath.replace('.md', '.html', 1)
+    url = outpath.replace('dest', config['baseUrl'])
+    meta["url"] = url
+    meta["outpath"] = outpath
+
     meta["content"] = content
 
     return meta
 
 
-def getFiles(path):
+def getFiles(dir):
     fileList = []
-    for (root,dirs,files) in os.walk('src',topdown=True):
+    for (root,dirs,files) in os.walk(dir,topdown=True):
         for f in files:
             fileList.append(f"{root}/{f}")
 
     return fileList
 
 
-def scanPageDir(dir):
+def scanPageDir(dir, config):
     allFiles = getFiles(dir)
     pages = []
 
     for a in allFiles:
         if a.endswith(".md"):
-            pDict = scanPage(a)
+            pDict = scanPage(a, config)
             pages.append(pDict)
 
     return pages
 
 
 
-def main():
+def main(pub=False):
     # First, load the config file
     try:
         with open('config.yml', 'r') as f:
@@ -109,6 +116,10 @@ def main():
     except Exception as e:
         print("ERROR: Unable to load 'config.yml'!")
         print("Please make sure the file exists and contains valid YAML")
+
+    # If we're not publishing, fix the URL
+    if not pub:
+        config['baseUrl'] = config['testUrl']
 
     # Remove dest if already exist
     if os.path.isdir('dest'):
@@ -128,7 +139,7 @@ def main():
         sys.exit(1)
 
     # Collect and process the page files
-    pages = scanPageDir('dest')
+    pages = scanPageDir('dest', config)
 
     # Sort the pages by date
     def getDate(page):
