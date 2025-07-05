@@ -88,8 +88,8 @@ def getFiles(path):
     return fileList
 
 
-def scanPages(dir):
-    allFiles = getFiles('dest')
+def scanPageDir(dir):
+    allFiles = getFiles(dir)
     pages = []
 
     for a in allFiles:
@@ -128,20 +128,23 @@ def main():
         sys.exit(1)
 
     # Get files
+    pages = scanPageDir('dest')
+    print(pages)
 
-    pDict = {
-        'site': config,
-        'page': {
-            'title': "Lots of stuff",
-            'content': "There's a lot of stuff here!"
-        }
-    }
-
-    print(renderTemplate('default', 'templates', pDict))
-
-    # scanPage test
-    print(scanPage('src/index.md'))
-
-    print(getFiles('src'))
+    # Test code
+#    pDict = {
+#        'site': config,
+#        'page': {
+#            'title': "Lots of stuff",
+#            'content': "There's a lot of stuff here!"
+#        }
+#    }
+#
+#    print(renderTemplate('default', 'templates', pDict))
+#
+#    # scanPage test
+#    print(scanPage('src/index.md'))
+#
+#    print(getFiles('src'))
 
 main()
