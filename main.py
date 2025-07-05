@@ -174,6 +174,15 @@ def main(pub=False):
             print(f"ERROR: {e}")
             sys.exit(1)
 
+        # Try to remove the source MD file.
+        try:
+            os.remove(p['inpath'])
+
+        except Exception as e:
+            print(f"ERROR: Unable to delete input file: '{p['inpath']}'!")
+            print(f"ERROR: {e}")
+            sys.exit(1)
+
     # Test code
 #    pDict = {
 #        'site': config,
