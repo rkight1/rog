@@ -1,6 +1,8 @@
 import sys
 import os
+import re
 from shutil import rmtree, copytree
+from datetime import datetime
 
 # external packages
 import chevron
@@ -111,10 +113,10 @@ def scanPageDir(dir, config):
     return pages
 
 
-def writePage(page, pageList, config):
+def writePage(page, pageList, site):
     # Build the page data dictionary
     templateData = {
-        'site': config,
+        'site': site,
         'page': page,
         'allPages': pageList
     }
@@ -175,6 +177,17 @@ def getPagesByProperty(pageList, prop):
     return newPageDict
 
 
+def cleanString(string):
+    # Convert special characters to 'x'
+    pattern = r'[^A-Za-z0-9 ]'
+    newStr = re.sub(pattern, "x", string)
+
+    # Convert spaces to underscores to make them more filename friendly.
+    newStr = newStr.replace(" ", "_")
+
+    return newStr
+
+
 def main(pub=False):
     # First, load the config file
     try:
@@ -223,11 +236,39 @@ def main(pub=False):
         return page['date']
 
     pages = sorted(pages, key=getDate, reverse=True)
-    tagPages = getPagesByProperty(pages, 'tags')
+    allTagPages = getPagesByProperty(pages, 'tags')
 
-    for t in tagPages:
+    # Attach the tag pages to config
+    config['allTagPages'] = allTagPages
+
+    # Create the tag page directory
+    try:
+        os.mkdir(f"dest/tags")
+
+    except Exception as e:
+        print("ERROR: Unable to create 'dest/tags'!")
+        print(f"ERROR: {e}")
+        sys.exit(1)
+
+    # Write the tag pages
+    for t in allTagPages:
+        # File names can't have special characters
+        tCleaned = cleanString(t)
+        print(tCleaned)
+
+        # Next, create the page
+        pDict = {
+            'title': f"Pages tagged '{t}'",
+            'date': datetime.now(),
+            'template': "tagPage",
+            'content': "",
+            'tagPages': allTagPages[t],
+            'outpath': f"dest/tags/{tCleaned}.html"
+        }
+        writePage(pDict, pages, config)
+
         print(t)
-        print(tagPages[t])
+        print(allTagPages[t])
         print('---')
 
     # Write all of the pages.
@@ -244,6 +285,15 @@ def main(pub=False):
             sys.exit(1)
 
     # Generate the stylesheet
+    css = renderTemplate('style', 'templates', {'site': config})
+    try:
+        with open('dest/style.css', 'w') as f:
+            f.write(css)
+
+    except Exception as e:
+        print(f"ERROR: Unable to write file: 'dest/style.css'!")
+        print(f"ERROR: {e}")
+        sys.exit(1)
 
 
     # Test code
