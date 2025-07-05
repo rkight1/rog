@@ -10,7 +10,7 @@ import yaml
 # Test chevron
 def renderTemplate(tName, tPath, pDict):
     # Die if template can't be slurped.
-    tFile = f"{tPath}/{tName}.html"
+    tFile = f"{tPath}/{tName}.ms"
     try:
         with open(f"{tFile}", 'r') as f:
             template = f.read()
@@ -27,7 +27,7 @@ def renderTemplate(tName, tPath, pDict):
         'partials_path': tPath,
 
         # defaults to mustache
-        'partials_ext': 'html',
+        'partials_ext': 'ms',
 
         'data': pDict
     }
@@ -206,6 +206,15 @@ def main(pub=False):
         print(f"ERROR: {e}")
         sys.exit(1)
 
+    # Copy static assets
+    if os.path.isdir('static'):
+        try:
+            copytree('static', 'dest')
+        except Exception as e:
+            print("ERROR: Unable to copy STATIC ASSETS to DEST!")
+            print(f"ERROR: {e}")
+            sys.exit(1)
+
     # Collect and process the page files
     pages = scanPageDir('dest', config)
 
@@ -233,6 +242,9 @@ def main(pub=False):
             print(f"ERROR: Unable to delete input file: '{p['inpath']}'!")
             print(f"ERROR: {e}")
             sys.exit(1)
+
+    # Generate the stylesheet
+
 
     # Test code
 #    pDict = {
