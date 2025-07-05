@@ -127,8 +127,14 @@ def main():
         print(f"ERROR: {e}")
         sys.exit(1)
 
-    # Get files
+    # Collect and process the page files
     pages = scanPageDir('dest')
+
+    # Sort the pages by date
+    def getDate(page):
+        return page['date']
+
+    pages = sorted(pages, key=getDate, reverse=True)
     print(pages)
 
     # Test code

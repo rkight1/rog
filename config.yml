@@ -1,3 +1,4 @@
 name: RJK Codes
 baseUrl: https://rjkcodes.site
+testUrl: http://localhost:8000
 author: RJK
