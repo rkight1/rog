@@ -15,7 +15,7 @@ def renderTemplate(tName, tPath, pDict):
         with open(f"{tFile}", 'r') as f:
             template = f.read()
     except Exception as e:
-        print(f"Unable to read template file: '{tFile}'!")
+        print(f"ERROR: Unable to read template file: '{tFile}'!")
         print(f"ERROR: {e}")
         sys.exit(1)
 
@@ -53,6 +53,7 @@ def scanPage(pgPath, config):
     except Exception as e:
         print(f"ERROR: Unable to read page at {pgPath}")
         print(f"ERROR: {e}")
+        print(sys.exit(1))
 
     parts = splitPage(content)
 
@@ -80,6 +81,9 @@ def scanPage(pgPath, config):
     url = outpath.replace('dest', config['baseUrl'])
     meta["url"] = url
     meta["outpath"] = outpath
+
+    # Also need the IN PATH to figure out which file to delete.
+    meta['inpath'] = pgPath
 
     meta["content"] = content
 
@@ -115,7 +119,8 @@ def main(pub=False):
             config = yaml.safe_load(f)
     except Exception as e:
         print("ERROR: Unable to load 'config.yml'!")
-        print("Please make sure the file exists and contains valid YAML")
+        print("Please make sure the file exists and contains valid YAML.")
+        sys.exit(1)
 
     # If we're not publishing, fix the URL
     if not pub:
@@ -146,7 +151,28 @@ def main(pub=False):
         return page['date']
 
     pages = sorted(pages, key=getDate, reverse=True)
-    print(pages)
+
+    # Write all of the pages.
+    for p in pages:
+        # Build the page data dictionary
+        pDict = {
+            'site': config,
+            'page': p,
+            'allPages': pages
+        }
+
+        # Generate the final output
+        output = renderTemplate(p['template'], 'templates', pDict)
+
+        # Try to write the final output
+        try:
+            with open(p['outpath'], 'w') as f:
+                f.write(output)
+
+        except Exception as e:
+            print(f"ERROR: Unable to write output file: '{p['outpath']}'!")
+            print(f"ERROR: {e}")
+            sys.exit(1)
 
     # Test code
 #    pDict = {
