@@ -1,3 +1,4 @@
+{{! -*- mode: html -*- }}
   </main>
 </body>
 
