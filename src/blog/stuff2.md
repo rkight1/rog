@@ -2,7 +2,7 @@ title: The first of many
 date: 2025-07-04
 tags:
   - thing 1
-  - thing 2
+  - thing 3
 +++
 
 Test page
