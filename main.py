@@ -135,22 +135,30 @@ def writePage(page, pageList, site):
         sys.exit(1)
 
 
-def getPagesByProperty(pageList, prop):
-    """Takes a list of page dictionaries and a property (eg. tags, category) and generates a list of unique values. Then it generates of a list of matching pages for each value and returns a nested dictionary.
+def getPagesByProperty(pageList, prop, config):
+    """Takes a list of page dictionaries, a property (eg. tags, category), and a site dictionary. Generates a collection of tree-like structures representing ROOT PAGE for property (yoursite.com/<prop>) and a list of pages for each unique value (yoursite.com/<prop>/[pv1, pv2, etc]).
 
     This can be used to generate pages for each tag, category, <insert property here>.
     """
 
+    # Get a list of pages that have the property.
+    propPages = []
+    for pg in pageList:
+        if prop in pg:
+            propPages.append(pg)
+
+
+    # Collect the property values.
     propValues = []
 
-    for pg in pageList:
+    for pg in propPages:
         val = pg[prop]
 
-        # The value is a list, iterate over it
+        # If the value is a list, iterate over it.
         if isinstance(val, list):
             for item in val:
                 propValues.append(item)
-        # If it's a string, append it as is
+        # If it's a string, append it as is.
         elif isinstance(val, str):
             propValues.append(val)
         else:
@@ -159,22 +167,31 @@ def getPagesByProperty(pageList, prop):
     # Remove duplicate values
     propValues = list(set(propValues))
 
-    newPageDict = {}
+    newCollection = {
+        'name': prop,
+        'pages': [propPages],
+        'values': []
+    }
+
     for pv in propValues:
-        newPageDict[pv] = []
-        for pg in pageList:
-            if prop in pg:
+        newValueDict = {
+            'name': pv,
+            'pages': []
+        }
+        for pg in propPages:
 
-                # Once again, we have to distringuish between string and array
-                if isinstance(pg[prop], list):
-                    for item in pg[prop]:
-                        if item == pv:
-                            newPageDict[pv].append(pg)
-                elif isinstance(pg[prop], str):
-                    if pg[prop] == pv:
-                        newPageDict[pv].append(pg)
+            # Once again, we have to distringuish between string and array
+            if isinstance(pg[prop], list):
+                for item in pg[prop]:
+                    if item == pv:
+                        newValueDict['pages'].append(pg)
+            elif isinstance(pg[prop], str):
+                if pg[prop] == pv:
+                    newValueDict['pages'].append(pg)
 
-    return newPageDict
+        newCollection['values'].append(newValueDict)
+
+    return newCollection
 
 
 def cleanString(string):
@@ -235,54 +252,62 @@ def main(pub=False):
     def getDate(page):
         return page['date']
 
-    pages = sorted(pages, key=getDate, reverse=True)
-    allTagPages = getPagesByProperty(pages, 'tags')
+    allPages = sorted(pages, key=getDate, reverse=True)
+    allTagPages = getPagesByProperty(allPages, 'tags', config)
 
     # Attach the tag pages to config
-    config['allTagPages'] = allTagPages
+    config['collections'] = {}
+    config['collections']['tags'] = allTagPages
 
     # Create the tag page directory
     try:
-        os.mkdir(f"dest/tags")
+        os.mkdir(f"dest/tag")
 
     except Exception as e:
-        print("ERROR: Unable to create 'dest/tags'!")
+        print("ERROR: Unable to create 'dest/tag'!")
         print(f"ERROR: {e}")
         sys.exit(1)
 
     # Write the tag pages
-    for t in allTagPages:
-        # File names can't have special characters
-        tCleaned = cleanString(t)
-        print(tCleaned)
+    for t in allTagPages['values']:
+        tagName = t['name']
+        colPages = t['pages']
+
+        # File names can't have special characters.
+        tCleaned = cleanString(tagName)
 
         # Next, create the page
+        outpath = f"dest/tag/{tCleaned}.html"
+        url = outpath.replace('dest', config['baseUrl'])
         pDict = {
-            'title': f"Pages tagged '{t}'",
+            'title': f"Pages tagged '{tagName}'",
             'date': datetime.now(),
             'template': "tagPage",
             'content': "",
-            'tagPages': allTagPages[t],
-            'outpath': f"dest/tags/{tCleaned}.html"
+            'collection': colPages,
+            'outpath': outpath,
+            'url': url
         }
-        writePage(pDict, pages, config)
 
-        print(t)
-        print(allTagPages[t])
-        print('---')
+        # Append it the main page list
+        allPages.append(pDict)
+
+    print(allTagPages['values'])
 
     # Write all of the pages.
-    for p in pages:
-        writePage(p, pages, config)
+    for p in allPages:
+        writePage(p, allPages, config)
 
-        # Try to remove the source MD file.
-        try:
-            os.remove(p['inpath'])
+        # Not all pages will have an inpath
+        if 'inpath' in p:
+            # Try to remove the source MD file.
+            try:
+                os.remove(p['inpath'])
 
-        except Exception as e:
-            print(f"ERROR: Unable to delete input file: '{p['inpath']}'!")
-            print(f"ERROR: {e}")
-            sys.exit(1)
+            except Exception as e:
+                print(f"ERROR: Unable to delete input file: '{p['inpath']}'!")
+                print(f"ERROR: {e}")
+                sys.exit(1)
 
     # Generate the stylesheet
     css = renderTemplate('style', 'templates', {'site': config})

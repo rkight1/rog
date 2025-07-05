@@ -2,9 +2,9 @@
 {{> head }}
     <h1>{{page.title}}</h1>
     <ul>
-    {{#page.tagPages}}
+    {{#page.collection}}
     <li><a href="{{url}}">{{title}}</a></li>
-    {{/page.tagPages}}
+    {{/page.collection}}
     </ul>
 
 {{> tail }}
