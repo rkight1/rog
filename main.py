@@ -194,6 +194,49 @@ def getPagesByProperty(pageList, prop, config):
     return newCollection
 
 
+def genCollectionPages(collection, template, config):
+    """Generate a list of page dictionaries for each key in a page collection. For example, if getPagesByProperty() is used to get all pages with a 'tags' property, this function can take that collection generate pages dictionaries for 'tags/tag1.html', 'tags/tag2.html', etc.
+
+    Requires:
+    collection - A nested key/value data structure returned by getPagesByProperty().
+    template   - The name of the template file to use. Will be resolved to 'dest/<template>.ms'.
+    config     - Main site configuration dictionary. Required to set the URL of the new page.
+    """
+    colName = collection['name']
+    # File names can't have special characters.
+    colNameCleaned = cleanString(colName)
+
+
+    # Make the tag pages.
+    pageList = []
+    for t in collection['values']:
+        valName = t['name']
+        valPages = t['pages']
+
+        # File names can't have special characters.
+        valNameCleaned = cleanString(valName)
+
+        # Next, create the page
+        outpath = f"dest/{colNameCleaned}/{valNameCleaned}.html"
+        url = outpath.replace('dest', config['baseUrl'])
+        pDict = {
+            'title': valName,
+            'date': datetime.now(),
+            'template': template,
+            'content': "",
+            'collectionPages': valPages,
+            'collectionName': valName,
+            'outpath': outpath,
+            'url': url
+        }
+
+        # Append the newly created page.
+        pageList.append(pDict)
+
+    return pageList
+
+
+
 def cleanString(string):
     # Convert special characters to 'x'
     pattern = r'[^A-Za-z0-9 ]'
@@ -253,46 +296,26 @@ def main(pub=False):
         return page['date']
 
     allPages = sorted(pages, key=getDate, reverse=True)
-    allTagPages = getPagesByProperty(allPages, 'tags', config)
 
     # Attach the tag pages to config
     config['collections'] = {}
-    config['collections']['tags'] = allTagPages
+    config['collections']['tags'] = getPagesByProperty(allPages, 'tags', config)
 
     # Create the tag page directory
     try:
-        os.mkdir(f"dest/tag")
+        os.mkdir(f"dest/tags")
 
     except Exception as e:
-        print("ERROR: Unable to create 'dest/tag'!")
+        print("ERROR: Unable to create 'dest/tags'!")
         print(f"ERROR: {e}")
         sys.exit(1)
 
-    # Write the tag pages
-    for t in allTagPages['values']:
-        tagName = t['name']
-        colPages = t['pages']
+    allTagPages = genCollectionPages(config['collections']['tags'], "tagPage", config)
 
-        # File names can't have special characters.
-        tCleaned = cleanString(tagName)
+    for tp in allTagPages:
+        allPages.append(tp)
 
-        # Next, create the page
-        outpath = f"dest/tag/{tCleaned}.html"
-        url = outpath.replace('dest', config['baseUrl'])
-        pDict = {
-            'title': f"Pages tagged '{tagName}'",
-            'date': datetime.now(),
-            'template': "tagPage",
-            'content': "",
-            'collection': colPages,
-            'outpath': outpath,
-            'url': url
-        }
-
-        # Append it the main page list
-        allPages.append(pDict)
-
-    print(allTagPages['values'])
+    #print(allTagPages['values'])
 
     # Write all of the pages.
     for p in allPages:

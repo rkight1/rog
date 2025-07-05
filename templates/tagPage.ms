@@ -1,10 +1,10 @@
 {{! -*- mode: html -*- }}
 {{> head }}
-    <h1>{{page.title}}</h1>
+    <h1>Pages tagged <span class="title-tag-name">{{page.collectionName}}</span></h1>
     <ul>
-    {{#page.collection}}
+    {{#page.collectionPages}}
     <li><a href="{{url}}">{{title}}</a></li>
-    {{/page.collection}}
+    {{/page.collectionPages}}
     </ul>
 
 {{> tail }}
