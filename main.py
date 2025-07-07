@@ -79,30 +79,32 @@ def scanPage(pgPath, config):
         meta["template"] = "default"
 
     # Every page needs a url and an output path
-    outpath = pgPath.replace('.md', '.html', 1)
-    url = outpath.replace('dest', config['baseUrl'])
+    outfile = pgPath.replace('.md', '.html', 1)
+    outfile = outfile.replace('src', 'dest', 1)
+    url = outfile.replace('dest', config['baseUrl'])
     meta["url"] = url
-    meta["outpath"] = outpath
+    meta["outfile"] = outfile
+    meta['outpath'] = os.path.dirname(outfile)
 
     # Also need the IN PATH to figure out which file to delete.
-    meta['inpath'] = pgPath
+    meta['infile'] = pgPath
 
     meta["content"] = mistune.html(content)
 
     return meta
 
 
-def getFiles(dir):
+def getFiles(dirPath):
     fileList = []
-    for (root,dirs,files) in os.walk(dir,topdown=True):
+    for (root,dirs,files) in os.walk(dirPath,topdown=True):
         for f in files:
             fileList.append(f"{root}/{f}")
 
     return fileList
 
 
-def scanPageDir(dir, config):
-    allFiles = getFiles(dir)
+def scanPageDir(dirPath, config):
+    allFiles = getFiles(dirPath)
     pages = []
 
     for a in allFiles:
@@ -114,6 +116,8 @@ def scanPageDir(dir, config):
 
 
 def writePage(page, pageList, site):
+    print(page)
+    print("---")
     # Build the page data dictionary
     templateData = {
         'site': site,
@@ -124,13 +128,22 @@ def writePage(page, pageList, site):
     # Generate the final output
     output = renderTemplate(page['template'], 'templates', templateData)
 
+    # Create the output directory if it doesn't exist.
+    if not os.path.isdir(page['outpath']):
+        try:
+            os.makedirs(page['outpath'])
+        except Exception as e:
+            print(f"ERROR: Unable to create output dirrctory: '{page['outpath']}'")
+            print(f"ERROR: {e}")
+            sys.exit(1)
+
     # Try to write the final output
     try:
-        with open(page['outpath'], 'w') as f:
+        with open(page['outfile'], 'w') as f:
             f.write(output)
 
     except Exception as e:
-        print(f"ERROR: Unable to write output file: '{p['outpath']}'!")
+        print(f"ERROR: Unable to write output file: '{page['outfile']}'!")
         print(f"ERROR: {e}")
         sys.exit(1)
 
@@ -207,16 +220,6 @@ def genCollectionPages(collection, template, config):
     # File names can't have special characters.
     colNameCleaned = cleanString(colName)
     
-    # Create the collection page directory.
-    try:
-        os.mkdir(f"dest/{colNameCleaned}")
-
-    except Exception as e:
-        print("ERROR: Unable to create 'dest/tags'!")
-        print(f"ERROR: {e}")
-        sys.exit(1)
-
-
     # Make the tag pages.
     pageList = []
     for t in collection['values']:
@@ -227,8 +230,8 @@ def genCollectionPages(collection, template, config):
         valNameCleaned = cleanString(valName)
 
         # Next, create the page
-        outpath = f"dest/{colNameCleaned}/{valNameCleaned}.html"
-        url = outpath.replace('dest', config['baseUrl'])
+        outfile = f"dest/{colNameCleaned}/{valNameCleaned}.html"
+        url = outfile.replace('src', config['baseUrl'])
         pDict = {
             'title': valName,
             'date': datetime.now(),
@@ -236,7 +239,8 @@ def genCollectionPages(collection, template, config):
             'content': "",
             'collectionPages': valPages,
             'collectionName': valName,
-            'outpath': outpath,
+            'outfile': outfile,
+            'outpath': os.path.dirname(outfile),
             'url': url
         }
 
@@ -281,13 +285,8 @@ def main(pub=False):
             print(f"ERROR: {e}")
             sys.exit(1)
 
-    # Copy src to dest
-    try:
-        copytree('src', 'dest')
-    except Exception as e:
-        print("ERROR: Unable to copy SRC to DEST!")
-        print(f"ERROR: {e}")
-        sys.exit(1)
+    # Make the output directory
+    os.makedirs('dest')
 
     # Copy static assets
     if os.path.isdir('static'):
@@ -299,7 +298,7 @@ def main(pub=False):
             sys.exit(1)
 
     # Collect and process the page files
-    pages = scanPageDir('dest', config)
+    pages = scanPageDir('src', config)
 
     # Sort the pages by date
     def getDate(page):
@@ -322,16 +321,6 @@ def main(pub=False):
     for p in allPages:
         writePage(p, allPages, config)
 
-        # Not all pages will have an inpath
-        if 'inpath' in p:
-            # Try to remove the source MD file.
-            try:
-                os.remove(p['inpath'])
-
-            except Exception as e:
-                print(f"ERROR: Unable to delete input file: '{p['inpath']}'!")
-                print(f"ERROR: {e}")
-                sys.exit(1)
 
     # Generate the stylesheet
     css = renderTemplate('style', 'templates', {'site': config})
