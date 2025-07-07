@@ -202,9 +202,19 @@ def genCollectionPages(collection, template, config):
     template   - The name of the template file to use. Will be resolved to 'dest/<template>.ms'.
     config     - Main site configuration dictionary. Required to set the URL of the new page.
     """
+
     colName = collection['name']
     # File names can't have special characters.
     colNameCleaned = cleanString(colName)
+    
+    # Create the collection page directory.
+    try:
+        os.mkdir(f"dest/{colNameCleaned}")
+
+    except Exception as e:
+        print("ERROR: Unable to create 'dest/tags'!")
+        print(f"ERROR: {e}")
+        sys.exit(1)
 
 
     # Make the tag pages.
@@ -300,15 +310,6 @@ def main(pub=False):
     # Attach the tag pages to config
     config['collections'] = {}
     config['collections']['tags'] = getPagesByProperty(allPages, 'tags', config)
-
-    # Create the tag page directory
-    try:
-        os.mkdir(f"dest/tags")
-
-    except Exception as e:
-        print("ERROR: Unable to create 'dest/tags'!")
-        print(f"ERROR: {e}")
-        sys.exit(1)
 
     allTagPages = genCollectionPages(config['collections']['tags'], "tagPage", config)
 
