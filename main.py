@@ -116,6 +116,7 @@ def scanPageDir(dirPath, config):
 
 
 def writePage(page, pageList, site):
+
     #print(page)
     #print("---")
     # Build the page data dictionary
@@ -323,6 +324,13 @@ def main(pub=False):
         return page['date']
 
     allPages = sorted(pages, key=getDate, reverse=True)
+
+
+    # Convert dates to preferred format
+    for p in allPages:
+        dString = p['date'].strftime(config['dateFormat'])
+        p['date'] = dString
+
 
 
     # Process collections

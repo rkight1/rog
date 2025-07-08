@@ -2,6 +2,7 @@ name: RJK Codes
 baseUrl: https://rjkcodes.site
 testUrl: http://localhost:8000
 author: RJK
+dateFormat: "%a, %b %d %Y"
 
 # Define collections for pages
 collections:
