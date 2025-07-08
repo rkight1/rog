@@ -117,6 +117,27 @@ def scanPageDir(dirPath, config):
 
 def writePage(page, pageList, site):
 
+    # Fix collection links
+    for prop in page:
+        propVal = page[prop]
+        print(f"Check page prop: {prop}")
+        if prop in site['collections']:
+            print(f"{prop} is in site collections")
+            if isinstance(propVal, list):
+                plist = propVal
+                if 'valuePages' in site['collections'][prop]:
+                    vpages = site['collections'][prop]['valuePages']
+
+                    for v in vpages:
+                        for idx, p in enumerate(plist):
+                            if v['collectionName'] == p:
+                                page[prop][idx] = v
+            else:
+                print(f"Property value: {page[prop]}")
+                print(f"Collection value: {site['collections'][prop]}")
+
+
+
     #print(page)
     #print("---")
     # Build the page data dictionary
@@ -250,7 +271,7 @@ def genPropertyValuePages(collection, template, config):
 
         # Next, create the page
         outfile = f"dest/{colNameCleaned}/{valNameCleaned}.html"
-        url = outfile.replace('src', config['baseUrl'])
+        url = outfile.replace('dest', config['baseUrl'], 1)
         pDict = {
             'title': valName,
             'date': datetime.now(),
@@ -332,7 +353,6 @@ def main(pub=False):
         p['date'] = dString
 
 
-
     # Process collections
     for c in config['collections']:
         col = config['collections'][c]
@@ -344,9 +364,11 @@ def main(pub=False):
 
             # Generate pages for each property and add them to allPages.
             propertyValuePages = genPropertyValuePages(col['pages'], col['template'], config)
-            #print(propertyValuePages)
+            col['valuePages'] = propertyValuePages
 
             for pvp in propertyValuePages:
+
+                # Also add them to the main page list for rendering.
                 allPages.append(pvp)
 
         elif 'propertyEquals' in col:
