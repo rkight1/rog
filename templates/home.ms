@@ -1,7 +1,12 @@
 {{! -*- mode: html -*- }}
 {{> head }}
-    {{page.content}}
+  {{ page.content }}
 
-    {{! Loop over blog posts? }}
+  {{! Loop over blog posts? }}
+  <ul>
+    {{# site.collections.posts.pages }}
+    {{ title }}
+    {{/ site.collections.posts.pages }}
+  </ul>
 
 {{> tail }}

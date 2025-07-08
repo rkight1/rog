@@ -3,6 +3,17 @@ baseUrl: https://rjkcodes.site
 testUrl: http://localhost:8000
 author: RJK
 
+# Define collections for pages
+collections:
+  tags:
+    hasProperty: tags
+    template: tagPage
+  posts:
+    propertyEquals:
+      property: pageType
+      value: post
+    template: default
+
 
 # Theme settings
 colors:

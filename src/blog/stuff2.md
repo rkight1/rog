@@ -1,5 +1,6 @@
 title: The first of many
 date: 2025-07-04
+pageType: post
 tags:
   - thing 1
   - thing 3
