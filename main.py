@@ -171,7 +171,7 @@ def writePage(page, pageList, site):
 
 
 def getPagesPropertyEquals(pageList, prop, value, config):
-    """Works like getPagesWithProperty, except that instead of gathering pages that have a given property, it gathers pages where PROPERTY = VALUE. This function DOES NOT generate a tree-like data structure, only a list of page dictionaries.
+    """Works like genCollectionFromProperty, except that instead of gathering pages that have a given property, it gathers pages where PROPERTY = VALUE. This function DOES NOT generate a tree-like data structure, only a list of page dictionaries.
 
     This can be used to generate a list of blog ppsts, project pages, etc."""
 
@@ -187,70 +187,11 @@ def getPagesPropertyEquals(pageList, prop, value, config):
     return foundPages
 
 
-def getPagesWithProperty(pageList, prop, config):
-    """Takes a list of page dictionaries, a property (eg. tags, category), and a site dictionary. Generates a collection of tree-like structures representing a ROOT PAGE for each property (yoursite.com/<prop>) and a list of pages for each unique value (yoursite.com/<prop>/[pv1, pv2, etc]).
-
-    This can be used to generate pages for each tag, category, etc.
-    """
-
-    # Get a list of pages that have the property.
-    propPages = []
-    for pg in pageList:
-        if prop in pg:
-            propPages.append(pg)
-
-
-    # Collect the property values.
-    propValues = []
-
-    for pg in propPages:
-        val = pg[prop]
-
-        # If the value is a list, iterate over it.
-        if isinstance(val, list):
-            for item in val:
-                propValues.append(item)
-        # If it's a string, append it as is.
-        elif isinstance(val, str):
-            propValues.append(val)
-        else:
-            print("WARNING: Property '{prop}' of page with title: {pg['title']} is neither a string nor a list. Skipping.")
-
-    # Remove duplicate values
-    propValues = list(set(propValues))
-
-    newCollection = {
-        'name': prop,
-        'pages': [propPages],
-        'values': []
-    }
-
-    for pv in propValues:
-        newValueDict = {
-            'name': pv,
-            'pages': []
-        }
-        for pg in propPages:
-
-            # Once again, we have to distringuish between string and array
-            if isinstance(pg[prop], list):
-                for item in pg[prop]:
-                    if item == pv:
-                        newValueDict['pages'].append(pg)
-            elif isinstance(pg[prop], str):
-                if pg[prop] == pv:
-                    newValueDict['pages'].append(pg)
-
-        newCollection['values'].append(newValueDict)
-
-    return newCollection
-
-
 def genPropertyValuePages(collection, template, config):
-    """Generate a list of page dictionaries for each key in a page collection. For example, if getPagesWithProperty() is used to get all pages with a 'tags' property, this function can take that collection and generate pages dictionaries for 'tags/tag1.html', 'tags/tag2.html', etc.
+    """Used by genCollectionFromProperty() to generate a list of page dictionaries for each key in a collection. For example, if the collection is 'tags', this function generates pages dictionaries for 'tags/tag1.html', 'tags/tag2.html', etc.
 
     Requires:
-    collection - A nested key/value data structure returned by getPagesWithProperty().
+    collection - A nested key/value data structure returned by genCollectionFromProperty().
     template   - The name of the template file to use. Will be resolved to 'templates/<template>.ms'.
     config     - Main site configuration dictionary. Required to set the URL of the new page.
     """
@@ -288,6 +229,73 @@ def genPropertyValuePages(collection, template, config):
         pageList.append(pDict)
 
     return pageList
+
+
+def genCollectionFromProperty(pageList, prop, propValueTemplate, config):
+    """Takes a list of page dictionaries, a property (eg. tags, category), and a site dictionary. Generates a collection of tree-like structures representing a ROOT PAGE for each property (yoursite.com/<prop>) and a list of pages for each unique value (yoursite.com/<prop>/[pv1, pv2, etc]).
+
+    This can be used to generate pages for each tag, category, etc.
+    """
+
+    # Get a list of pages that have the property.
+    propPages = []
+    for pg in pageList:
+        if prop in pg:
+            propPages.append(pg)
+
+
+    # Collect the property values.
+    propValues = []
+
+    for pg in propPages:
+        val = pg[prop]
+
+        # If the value is a list, iterate over it.
+        if isinstance(val, list):
+            for item in val:
+                propValues.append(item)
+        # If it's a string, append it as is.
+        elif isinstance(val, str):
+            propValues.append(val)
+        else:
+            print("WARNING: Property '{prop}' of page with title: {pg['title']} is neither a string nor a list. Skipping.")
+
+    # Remove duplicate values
+    propValues = list(set(propValues))
+
+    # Generate a new collection
+    newCollection = {
+        'name': prop,
+        'pages': propPages,
+        'values': []
+    }
+
+    for pv in propValues:
+        newValueDict = {
+            'name': pv,
+            'pages': []
+        }
+        for pg in propPages:
+
+            # Once again, we have to distinguish between strings and arrays.
+            if isinstance(pg[prop], list):
+                for item in pg[prop]:
+                    if item == pv:
+                        newValueDict['pages'].append(pg)
+            elif isinstance(pg[prop], str):
+                if pg[prop] == pv:
+                    newValueDict['pages'].append(pg)
+
+        newCollection['values'].append(newValueDict)
+
+    # Generate and add pages for each property.
+
+    pvPages = genPropertyValuePages(newCollection, propValueTemplate, config)
+    newCollection['valuePages'] = pvPages
+
+    return newCollection
+
+
 
 
 
@@ -359,14 +367,15 @@ def main(pub=False):
 
         if 'hasProperty' in col:
             prop = col['hasProperty']
-            col['pages'] = getPagesWithProperty(allPages, c, config)
+
+            # Generate a new collection
+            newCol = genCollectionFromProperty(allPages, c, col['propValueTemplate'], config)
             #print(col['pages'])
 
-            # Generate pages for each property and add them to allPages.
-            propertyValuePages = genPropertyValuePages(col['pages'], col['template'], config)
-            col['valuePages'] = propertyValuePages
+            # Update the collection
+            config['collections'][c] = newCol
 
-            for pvp in propertyValuePages:
+            for pvp in config['collections'][c]['valuePages']:
 
                 # Also add them to the main page list for rendering.
                 allPages.append(pvp)
@@ -392,7 +401,7 @@ def main(pub=False):
 
 #    # Attach the tag pages to config
 #    config['collections'] = {}
-#    config['collections']['tags'] = getPagesWithProperty(allPages, 'tags', config)
+#    config['collections']['tags'] = genCollectionFromProperty(allPages, 'tags', config)
 #
 #    allTagPages = genPropertyValuePages(config['collections']['tags'], "tagPage", config)
 #
@@ -416,6 +425,9 @@ def main(pub=False):
         print(f"ERROR: Unable to write file: 'dest/style.css'!")
         print(f"ERROR: {e}")
         sys.exit(1)
+
+
+    print(config['collections']['tags']['valuePages'])
 
 
     # Test code
