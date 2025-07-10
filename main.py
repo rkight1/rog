@@ -9,7 +9,12 @@ import chevron
 import mistune
 import yaml
 
-# Test chevron
+
+# !! DO NOT TOUCH UNLESS YOU KNOW WHAT YOU'RE DOING !!
+SRC = 'src'
+DEST = 'dest'
+
+# Chevron rendering function
 def renderTemplate(tName, tPath, pDict):
     # Die if template can't be slurped.
     tFile = f"{tPath}/{tName}.ms"
@@ -80,13 +85,13 @@ def scanPage(pgPath, config):
 
     # Every page needs a url and an output path
     outfile = pgPath.replace('.md', '.html', 1)
-    outfile = outfile.replace('src', 'dest', 1)
-    url = outfile.replace('dest', config['baseUrl'])
+    outfile = outfile.replace(SRC, DEST, 1)
+    url = outfile.replace(DEST, config['baseUrl'])
     meta["url"] = url
     meta["outfile"] = outfile
     meta['outpath'] = os.path.dirname(outfile)
 
-    # Also need the IN PATH to figure out which file to delete.
+    # Also need the IN FILE to figure out which file to delete.
     meta['infile'] = pgPath
 
     meta["content"] = mistune.html(content)
@@ -211,8 +216,8 @@ def genPropertyValuePages(collection, template, config):
         valNameCleaned = cleanString(valName)
 
         # Next, create the page
-        outfile = f"dest/{colNameCleaned}/{valNameCleaned}.html"
-        url = outfile.replace('dest', config['baseUrl'], 1)
+        outfile = f"{SRC}/{colNameCleaned}/{valNameCleaned}.html"
+        url = outfile.replace(DEST, config['baseUrl'], 1)
         pDict = {
             'title': valName,
             'date': datetime.now(),
@@ -293,8 +298,8 @@ def genCollectionFromProperty(config, pageList, prop, propValueTemplate, rootTit
     newCollection['valuePages'] = pvPages
 
     # Finally, generate the ROOT page for the collection
-    outfile = f"dest/all{prop}.html"
-    url = outfile.replace('dest', config['baseUrl'], 1)
+    outfile = f"{DEST}/all{prop}.html"
+    url = outfile.replace(DEST, config['baseUrl'], 1)
     newCollection['rootPage'] = {
         'title': rootTitle,
         'date': datetime.now(),
@@ -337,28 +342,28 @@ def main(pub=False):
         config['baseUrl'] = config['testUrl']
 
     # Remove dest if already exist
-    if os.path.isdir('dest'):
+    if os.path.isdir(DEST):
         try:
-            rmtree('dest')
+            rmtree(DEST)
         except Exception as e:
-            print("ERROR: Unable to clean DEST!")
+            print(f"ERROR: Unable to clean {DEST}!")
             print(f"ERROR: {e}")
             sys.exit(1)
 
     # Make the output directory
-    os.makedirs('dest')
+    os.makedirs(DEST)
 
     # Copy static assets
     if os.path.isdir('static'):
         try:
-            copytree('static', 'dest')
+            copytree('static', DEST)
         except Exception as e:
-            print("ERROR: Unable to copy STATIC ASSETS to DEST!")
+            print(f"ERROR: Unable to copy STATIC ASSETS to {DEST}!")
             print(f"ERROR: {e}")
             sys.exit(1)
 
     # Collect and process the page files
-    pages = scanPageDir('src', config)
+    pages = scanPageDir(SRC, config)
 
     # Sort the pages by date
     def getDate(page):
@@ -447,11 +452,11 @@ def main(pub=False):
     # Generate the stylesheet
     css = renderTemplate('style', 'templates', {'site': config})
     try:
-        with open('dest/style.css', 'w') as f:
+        with open(f"{DEST}/style.css", 'w') as f:
             f.write(css)
 
     except Exception as e:
-        print(f"ERROR: Unable to write file: 'dest/style.css'!")
+        print(f"ERROR: Unable to write file: '{DEST}/style.css'!")
         print(f"ERROR: {e}")
         sys.exit(1)
 
