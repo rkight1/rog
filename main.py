@@ -231,7 +231,7 @@ def genPropertyValuePages(collection, template, config):
     return pageList
 
 
-def genCollectionFromProperty(pageList, prop, propValueTemplate, config):
+def genCollectionFromProperty(config, pageList, prop, propValueTemplate, rootTitle, rootTemplate):
     """Takes a list of page dictionaries, a property (eg. tags, category), and a site dictionary. Generates a collection of tree-like structures representing a ROOT PAGE for each property (yoursite.com/<prop>) and a list of pages for each unique value (yoursite.com/<prop>/[pv1, pv2, etc]).
 
     This can be used to generate pages for each tag, category, etc.
@@ -289,9 +289,21 @@ def genCollectionFromProperty(pageList, prop, propValueTemplate, config):
         newCollection['values'].append(newValueDict)
 
     # Generate and add pages for each property.
-
     pvPages = genPropertyValuePages(newCollection, propValueTemplate, config)
     newCollection['valuePages'] = pvPages
+
+    # Finally, generate the ROOT page for the collection
+    outfile = f"dest/all{prop}.html"
+    url = outfile.replace('dest', config['baseUrl'], 1)
+    newCollection['rootPage'] = {
+        'title': rootTitle,
+        'date': datetime.now(),
+        'template': rootTemplate,
+        'content': "",
+        'outfile': outfile,
+        'outpath': os.path.dirname(outfile),
+        'url': url
+    }
 
     return newCollection
 
@@ -366,19 +378,36 @@ def main(pub=False):
         col = config['collections'][c]
 
         if 'hasProperty' in col:
+            # Ensure a sensible title.
+            if 'rootTitle' in col:
+                title = col['rootTitle']
+            else:
+                title = c
+
+            # Make sure we have templates!
+            if 'propValueTemplate' not in col:
+                print(f"ERROR: Collection {c} has no 'propValueTemplate'!")
+                sys.exit(1)
+
+            if 'rootTemplate' not in col:
+                print(f"ERROR: Collection {c} has no 'rootTemplate'!")
+                sys.exit(1)
+
             prop = col['hasProperty']
 
-            # Generate a new collection
-            newCol = genCollectionFromProperty(allPages, c, col['propValueTemplate'], config)
+            # Generate a new collection.
+            newCol = genCollectionFromProperty(config, allPages, c, col['propValueTemplate'], title, col['rootTemplate'])
             #print(col['pages'])
 
-            # Update the collection
+            # Attach the new collection.
             config['collections'][c] = newCol
 
+            # Add the value pages to the main page list for rendering.
             for pvp in config['collections'][c]['valuePages']:
-
-                # Also add them to the main page list for rendering.
                 allPages.append(pvp)
+
+            # And the ROOT page of the collection.
+            allPages.append(newCol['rootPage'])
 
         elif 'propertyEquals' in col:
             prop = col['propertyEquals']['property']
