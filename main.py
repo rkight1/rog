@@ -380,6 +380,8 @@ def main(pub=False):
 
 
     # Process collections
+    # Use a list to store collection ROOT pages that should be added to the main site menu.
+    rootMenuPages = []
     for c in config['collections']:
         col = config['collections'][c]
 
@@ -389,6 +391,11 @@ def main(pub=False):
                 title = col['rootTitle']
             else:
                 title = c
+
+            addToMenu = False
+            if 'addToMenu' in col:
+                if col['addToMenu']:
+                    addToMenu = True
 
             # Make sure we have templates!
             if 'propValueTemplate' not in col:
@@ -415,12 +422,20 @@ def main(pub=False):
             # And the ROOT page of the collection.
             allPages.append(newCol['rootPage'])
 
+            # Add to menu if requests.
+            if addToMenu:
+                rootMenuPages.append(newCol['rootPage'])
+
         elif 'propertyEquals' in col:
             prop = col['propertyEquals']['property']
             val = col['propertyEquals']['value']
             print(f"PROP: {prop} / VAL: {val}")
             col['pages'] = getPagesPropertyEquals(allPages, prop, val, config)
 
+
+    if 'menu' in config['collections']:
+        for m in rootMenuPages:
+            config['collections']['menu']['pages'].append(m)
 
     print("Collections")
     for c in config['collections']:

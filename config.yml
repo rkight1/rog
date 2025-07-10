@@ -20,6 +20,7 @@ collections:
     # Set a custom title for the ROOT page of the collection
     # Defaults to the value of 'hasProperty'
     rootTitle: Tags
+    addToMenu: true
 
 
   # All of the blog posts
@@ -30,6 +31,7 @@ collections:
     template: default
 
   # All pages you want to add to the main menu
+  # 'menu' is special and gets processed last.
   menu:
     propertyEquals:
       property: menu
@@ -41,4 +43,4 @@ collections:
 colors:
   foreground: "#005500"
   background: "#fafffa"
-  brand: "#ff0"
+  brand: "#f70"
