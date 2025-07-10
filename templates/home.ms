@@ -1,6 +1,6 @@
 {{! -*- mode: html -*- }}
 {{> head }}
-  {{ page.content }}
+  {{{ page.content }}}
 
   {{! Loop over blog posts? }}
   <ul class="post-list">
@@ -16,6 +16,5 @@
     </li>
     {{/ site.collections.posts.pages }}
   </ul>
-  {{ site.collections.tags.values }}
 
 {{> tail }}
