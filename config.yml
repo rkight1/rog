@@ -10,7 +10,17 @@ collections:
   # Each tag value gets its own page.
   tags:
     hasProperty: tags
-    template: tagPage
+
+    # Template to use for the each tag value page
+    propValueTemplate: tagPage
+
+    # Template to use for the collection ROOT page
+    rootTemplate: allTags
+
+    # Set a custom title for the ROOT page of the collection
+    # Defaults to the value of 'hasProperty'
+    rootTitle: Tags
+
 
   # All of the blog posts
   posts:
