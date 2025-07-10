@@ -216,7 +216,7 @@ def genPropertyValuePages(collection, template, config):
         valNameCleaned = cleanString(valName)
 
         # Next, create the page
-        outfile = f"{SRC}/{colNameCleaned}/{valNameCleaned}.html"
+        outfile = f"{DEST}/{colNameCleaned}/{valNameCleaned}.html"
         url = outfile.replace(DEST, config['baseUrl'], 1)
         pDict = {
             'title': valName,
@@ -350,8 +350,8 @@ def main(pub=False):
             print(f"ERROR: {e}")
             sys.exit(1)
 
-    # Make the output directory
-    os.makedirs(DEST)
+    # Copy SRC to DEST to scoop up any page assets (images, sample files, etc.)
+    copytree(SRC, DEST)
 
     # Copy static assets
     if os.path.isdir('static'):
@@ -362,8 +362,9 @@ def main(pub=False):
             print(f"ERROR: {e}")
             sys.exit(1)
 
-    # Collect and process the page files
-    pages = scanPageDir(SRC, config)
+    # Collect and process the page files.
+    # NOTE: Remember that we copy the pages to DEST and SCAN DEST! DO NOT SCAN SRC! If you do, then all generated page dictionaries will have an 'infile' value starting with SRC, which cause the pages to be deleted from SRC instead of DEST.
+    pages = scanPageDir(DEST, config)
 
     # Sort the pages by date
     def getDate(page):
@@ -432,21 +433,13 @@ def main(pub=False):
         print("---")
 
 
-
-#    # Attach the tag pages to config
-#    config['collections'] = {}
-#    config['collections']['tags'] = genCollectionFromProperty(allPages, 'tags', config)
-#
-#    allTagPages = genPropertyValuePages(config['collections']['tags'], "tagPage", config)
-#
-#    for tp in allTagPages:
-#        allPages.append(tp)
-
-    #print(allTagPages['values'])
-
     # Write all of the pages.
     for p in allPages:
         writePage(p, allPages, config)
+
+        # NOTE: Since we're copying everything from SRC to DEST, remove the input files from dest.
+        if 'infile' in p:
+            os.remove(p['infile'])
 
 
     # Generate the stylesheet
@@ -461,10 +454,7 @@ def main(pub=False):
         sys.exit(1)
 
 
-    print(config['collections']['tags']['valuePages'])
-
-
-    # Test code
+# Test code
 #    pDict = {
 #        'site': config,
 #        'page': {
