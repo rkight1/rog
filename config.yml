@@ -6,14 +6,20 @@ dateFormat: "%a, %b %d %Y"
 
 # Define collections for pages
 collections:
+  # Generates a collection for each page that has tags.
+  # Each tag value gets its own page.
   tags:
     hasProperty: tags
     template: tagPage
+
+  # All of the blog posts
   posts:
     propertyEquals:
       property: pageType
       value: post
     template: default
+
+  # All pages you want to add to the main menu
   menu:
     propertyEquals:
       property: menu
