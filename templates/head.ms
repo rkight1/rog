@@ -6,8 +6,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{page.title}} -- {{site.name}}</title>
-  <!--<script src="js/sketch.js"></script>-->
+  {{! <script src="js/sketch.js"></script> }}
+  {{! Load highlight.js }}
+  <script src="{{site.baseUrl}}/hljs/highlight.min.js"></script>
+  <link rel="stylesheet" href="{{site.baseUrl}}/hljs/styles/monokai.min.css">
+
   <link rel="stylesheet" href="{{site.baseUrl}}/style.css">
+
+  <script>hljs.highlightAll();</script>
 </head>
 
 <body>
