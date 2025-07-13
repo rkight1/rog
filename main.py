@@ -45,6 +45,7 @@ def renderTemplate(tName, tPath, pDict):
 
 # Split pages into meta and content halfs
 def splitPage(content):
+    print(content)
     parts = content.split("\n+++\n")
 
     return [parts[0].strip(), parts[1].strip()]
@@ -353,15 +354,6 @@ def main(pub=False):
     # Copy SRC to DEST to scoop up any page assets (images, sample files, etc.)
     copytree(SRC, DEST)
 
-    # Copy static assets
-    if os.path.isdir('static'):
-        try:
-            copytree('static', DEST, dirs_exist_ok=True)
-        except Exception as e:
-            print(f"ERROR: Unable to copy STATIC ASSETS to {DEST}!")
-            print(f"ERROR: {e}")
-            sys.exit(1)
-
     # Collect and process the page files.
     # NOTE: Remember that we copy the pages to DEST and SCAN DEST! DO NOT SCAN SRC! If you do, then all generated page dictionaries will have an 'infile' value starting with SRC, which cause the pages to be deleted from SRC instead of DEST.
     pages = scanPageDir(DEST, config)
@@ -456,6 +448,15 @@ def main(pub=False):
         if 'infile' in p:
             os.remove(p['infile'])
 
+
+    # Copy static assets
+    if os.path.isdir('static'):
+        try:
+            copytree('static', DEST, dirs_exist_ok=True)
+        except Exception as e:
+            print(f"ERROR: Unable to copy STATIC ASSETS to {DEST}!")
+            print(f"ERROR: {e}")
+            sys.exit(1)
 
 #    # Generate the stylesheet
 #    css = renderTemplate('style', 'templates', {'site': config})
