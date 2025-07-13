@@ -10,9 +10,9 @@
       <p class="post-meta">
         Posted on {{ date }} <span class="meta-tags">{{^tags}}Tags: None{{/tags}}{{# tags}}<a href="{{url}}">{{collectionName}}</a>{{/ tags }}
       </p>
-      <p class="post-desc">
-        {{ description }}
-      </p>
+      {{# description }}
+        <p class="post-desc">{{ . }}</p>
+      {{/ description }}
     </li>
     {{/ site.collections.posts.pages }}
   </ul>
