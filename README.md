@@ -23,3 +23,8 @@ Mainly to show off what I know to potential employers/clients. Also, the vast ma
 6. Run `python main.py publish`.
 7. Sync the contents of the `dest` directory to your web server.
 
+
+## CLI options
+
+- `publish`: Build the site with the `baseURL` specified in `config.yml`
+- `build`: Build the site with the `testURL` specified in `config.yml`

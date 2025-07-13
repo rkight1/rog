@@ -1,7 +1,7 @@
-name: RJK Codes
-baseUrl: https://rjkcodes.site
+name: Site name here
+baseUrl: https://example.com
 testUrl: http://localhost:8000
-author: RJK
+author: Your Name
 dateFormat: "%a, %b %d %Y"
 
 # Define collections for pages
@@ -11,27 +11,26 @@ collections:
   tags:
     hasProperty: tags
 
-    # Template to use for the each tag value page
+    # Template to use for the each tag value page:
     propValueTemplate: tagPage
 
-    # Template to use for the collection ROOT page
+    # Template to use for the collection ROOT page:
     rootTemplate: allTags
 
-    # Set a custom title for the ROOT page of the collection
-    # Defaults to the value of 'hasProperty'
+    # Set a custom title for the ROOT page of the collection.
+    # Defaults to the value of 'hasProperty'.
     rootTitle: Tags
     addToMenu: true
 
 
-  # All of the blog posts
+  # All of the blog posts:
   posts:
     propertyEquals:
       property: pageType
       value: post
     template: default
 
-  # All pages you want to add to the main menu
-  # 'menu' is special and gets processed last.
+  # All pages you want to add to the main menu.
   menu:
     propertyEquals:
       property: menu
