@@ -4,7 +4,7 @@
     --bg: #fafffa;
     --brand: #f50;
     --font-size: 12pt;
-    --vspacing: 1em;
+    --vspacing: 1.8em;
 }
 
 body {
@@ -18,12 +18,36 @@ a {
     color: var(--brand);
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+main h1,
+main h2,
+main h3,
+main h4,
+main h5,
+main h6 {
     font: serif;
     margin-top: calc(var(--vspacing ) * 3);
+}
+
+main p,
+main li,
+main pre,
+main blockquote {
+    line-height: var(--vspacing);
+}
+
+main p,
+main ul,
+main ol,
+main pre,
+main blockquote {
+    margin-top: var(--vspacing);
+    margin-bottom: calc(var(--vspacing) * 1.5);
+}
+
+main ul ul,
+main ol ol,
+main ul ol,
+main ol ul {
+    margin-top: calc(var(--vspacing) / 3);
+    margin-bottom: calc(var(--vspacing) / 3);
 }
