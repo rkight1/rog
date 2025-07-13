@@ -485,4 +485,20 @@ def main(pub=False):
 #
 #    print(getFiles('src'))
 
-main()
+
+def printHelp():
+    print("Supported options are:")
+    print("publish - Builds the site with 'baseUrl' from config.yml.")
+    print("build   - Builds the site with 'testUrl' from config.yml.")
+
+if __name__ == "__main__":
+    #main()
+    print(sys.argv)
+
+    if len(sys.argv) == 2:
+        if sys.argv[1] == "publish":
+            main(pub=True)
+        elif sys.argv[1] == "build":
+            main()
+    else:
+        printHelp()
