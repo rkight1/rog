@@ -5,7 +5,7 @@
 
   <ul>
   {{# site.collections.tags.valuePages}}
-    <li><a href="{{ url }}">{{ title }}</a></li>
+    <li><h3><a href="{{ url }}">{{ title }}</a></h3></li>
   {{/ site.collections.tags.valuePages}}
   </ul>
 
