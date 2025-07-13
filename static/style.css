@@ -25,7 +25,7 @@ main h4,
 main h5,
 main h6 {
     font: serif;
-    margin-top: calc(var(--vspacing ) * 3);
+    margin-top: calc(var(--vspacing ) * 2);
 }
 
 main p,
