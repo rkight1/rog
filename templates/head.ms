@@ -12,11 +12,13 @@
 
 <body>
   <header id="site-header">
-    <a href="{{site.baseUrl}}"><h1>{{site.name}}</h1></a>
-    <ul id="site-menu">
-      {{# site.collections.menu.pages }}
-      <li class="site-menu-item"><a href="{{url}}">{{title}}</a></li>
-      {{/ site.collections.menu.pages }}
-    </ul>
+    <h1 id="site-name"><a href="{{site.baseUrl}}">{{site.name}}</a></h1>
+    <nav id="site-menu">
+      <ul>
+        {{# site.collections.menu.pages }}
+        <li class="site-menu-item"><a href="{{url}}">{{title}}</a></li>
+        {{/ site.collections.menu.pages }}
+      </ul>
+    </nav>
   </header>
   <main>

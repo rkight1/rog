@@ -12,10 +12,16 @@ body {
     font-size: 12pt;
     color: var(--fg);
     background: var(--bg);
+    margin: 0;
 }
 
 a {
     color: var(--brand);
+}
+
+main {
+    margin-left: 0.8em;
+    margin-right: 0.8em;
 }
 
 main h1,
@@ -50,4 +56,36 @@ main ul ol,
 main ol ul {
     margin-top: calc(var(--vspacing) / 3);
     margin-bottom: calc(var(--vspacing) / 3);
+}
+
+#site-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    font-family: sans-serif;
+    font-weight: bold;
+    border-bottom: 0.2em solid var(--fg);
+    margin-top: calc(var(--vspacing) * -0.5);
+    margin-bottom: calc(var(--vspacing) * 2);
+    padding-right: 0;
+    padding-left: 0;
+}
+
+#site-header a {
+    text-decoration: none;
+    text-shadow: 0.1em 0.1em 0.05em var(--fg);
+}
+
+#site-name {
+    flex-grow: 2;
+    padding-left: 0.5em;
+}
+
+.site-menu-item {
+    font-size: 120%;
+    list-style: none;
+    display: inline-block;
+    margin-right: 2em;
 }
