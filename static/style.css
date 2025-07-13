@@ -89,3 +89,30 @@ main ol ul {
     display: inline-block;
     margin-right: 2em;
 }
+
+.post-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.post-list-item {
+    border-bottom: 0.1em solid var(--fg);
+}
+
+.post-meta {
+    font-style: italic;
+}
+
+.meta-tags .tag-name {
+    margin-left: 0.4em;
+    font-style: normal;
+    font-weight: bold;
+}
+
+.meta-tags .tag-name a {
+    font-size: 90%;
+    text-decoration: none;
+    border-radius: 1.0em;
+    border: 0.1em solid var(--fg);
+    padding: 0.2em 0.5em;
+}
