@@ -1,0 +1,29 @@
+/* -*- mode: css -*- */
+:root {
+    --fg: #003500;
+    --bg: #fafffa;
+    --brand: #f50;
+    --font-size: 12pt;
+    --vspacing: 1em;
+}
+
+body {
+    font: sans-serif;
+    font-size: 12pt;
+    color: var(--fg);
+    background: var(--bg);
+}
+
+a {
+    color: var(--brand);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font: serif;
+    margin-top: calc(var(--vspacing ) * 3);
+}

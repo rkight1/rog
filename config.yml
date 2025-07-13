@@ -37,10 +37,3 @@ collections:
       property: menu
       value: true
     template: default
-
-
-# Theme settings
-colors:
-  foreground: "#005500"
-  background: "#fafffa"
-  brand: "#f70"

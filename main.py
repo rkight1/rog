@@ -356,7 +356,7 @@ def main(pub=False):
     # Copy static assets
     if os.path.isdir('static'):
         try:
-            copytree('static', DEST)
+            copytree('static', DEST, dirs_exist_ok=True)
         except Exception as e:
             print(f"ERROR: Unable to copy STATIC ASSETS to {DEST}!")
             print(f"ERROR: {e}")
@@ -457,16 +457,16 @@ def main(pub=False):
             os.remove(p['infile'])
 
 
-    # Generate the stylesheet
-    css = renderTemplate('style', 'templates', {'site': config})
-    try:
-        with open(f"{DEST}/style.css", 'w') as f:
-            f.write(css)
-
-    except Exception as e:
-        print(f"ERROR: Unable to write file: '{DEST}/style.css'!")
-        print(f"ERROR: {e}")
-        sys.exit(1)
+#    # Generate the stylesheet
+#    css = renderTemplate('style', 'templates', {'site': config})
+#    try:
+#        with open(f"{DEST}/style.css", 'w') as f:
+#            f.write(css)
+#
+#    except Exception as e:
+#        print(f"ERROR: Unable to write file: '{DEST}/style.css'!")
+#        print(f"ERROR: {e}")
+#        sys.exit(1)
 
 
 # Test code
