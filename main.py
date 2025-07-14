@@ -45,7 +45,7 @@ def renderTemplate(tName, tPath, pDict):
 
 # Split pages into meta and content halfs
 def splitPage(content):
-    print(content)
+    #print(content)
     parts = content.split("\n+++\n")
 
     return [parts[0].strip(), parts[1].strip()]
@@ -61,7 +61,7 @@ def scanPage(pgPath, config):
     except Exception as e:
         print(f"ERROR: Unable to read page at {pgPath}")
         print(f"ERROR: {e}")
-        print(sys.exit(1))
+        sys.exit(1)
 
     parts = splitPage(content)
 
@@ -126,9 +126,9 @@ def writePage(page, pageList, site):
     # Fix collection links
     for prop in page:
         propVal = page[prop]
-        print(f"Check page prop: {prop}")
+        #print(f"Check page prop: {prop}")
         if prop in site['collections']:
-            print(f"{prop} is in site collections")
+            #print(f"{prop} is in site collections")
             if isinstance(propVal, list):
                 plist = propVal
                 if 'valuePages' in site['collections'][prop]:
@@ -138,9 +138,9 @@ def writePage(page, pageList, site):
                         for idx, p in enumerate(plist):
                             if v['collectionName'] == p:
                                 page[prop][idx] = v
-            else:
-                print(f"Property value: {page[prop]}")
-                print(f"Collection value: {site['collections'][prop]}")
+#            else:
+#                print(f"Property value: {page[prop]}")
+#                print(f"Collection value: {site['collections'][prop]}")
 
 
 
@@ -421,7 +421,7 @@ def main(pub=False):
         elif 'propertyEquals' in col:
             prop = col['propertyEquals']['property']
             val = col['propertyEquals']['value']
-            print(f"PROP: {prop} / VAL: {val}")
+            #print(f"PROP: {prop} / VAL: {val}")
             col['pages'] = getPagesPropertyEquals(allPages, prop, val, config)
 
 
@@ -429,15 +429,15 @@ def main(pub=False):
         for m in rootMenuPages:
             config['collections']['menu']['pages'].append(m)
 
-    print("Collections")
-    for c in config['collections']:
-        print(f"Col name: {c}")
-        col = config['collections'][c]
-        print("Properties:")
-        for p in col:
-            print(p)
-            print(col[p])
-        print("---")
+#    print("Collections")
+#    for c in config['collections']:
+#        print(f"Col name: {c}")
+#        col = config['collections'][c]
+#        print("Properties:")
+#        for p in col:
+#            print(p)
+#            print(col[p])
+#        print("---")
 
 
     # Write all of the pages.
@@ -494,7 +494,7 @@ def printHelp():
 
 if __name__ == "__main__":
     #main()
-    print(sys.argv)
+    #print(sys.argv)
 
     if len(sys.argv) == 2:
         if sys.argv[1] == "publish":
