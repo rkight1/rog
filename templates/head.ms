@@ -18,7 +18,7 @@
 
 <body>
   <header id="site-header">
-    <h1 id="site-name"><a href="{{site.baseUrl}}">{{site.name}}</a></h1>
+    <h1 id="site-name"><a href="{{site.baseUrl}}/index.html">{{site.name}}</a></h1>
     <nav id="site-menu">
       <ul>
         {{# site.collections.menu.pages }}
