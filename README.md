@@ -10,7 +10,7 @@
 
 ## Why?
 
-Mainly to show off what I know to potential employers/clients. Also, the vast majority of the SSG's out there right now are kind of complicated and have *way* to may features. My program only has *two* dependencies.
+Mainly to show off what I know to potential employers/clients. Also, the vast majority of the SSG's out there right now are kind of complicated and have *way* to many features. My program only has *two* dependencies.
 
 
 ## Setup
